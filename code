@@ -1,0 +1,39 @@
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+import requests
+
+# Функція, що обробляє команду /start
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Привіт! Я бот, який шукає інформацію за ключовими словами. Просто надішліть мені слово або фразу, і я спробую знайти відповідну інформацію.")
+
+# Функція, що обробляє вхідні повідомлення
+def search(update, context):
+    keyword = update.message.text
+    # Ваш код для пошуку інформації за ключовими словами
+    # Можна використовувати APIs, веб-скрапінг або інші методи пошуку
+
+    # Приклад: Використовуємо простий API для пошуку за ключовим словом
+    response = requests.get(f"https://example.com/api/search?keyword={keyword}")
+    data = response.json()
+
+    if data:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f"Знайдено інформацію за ключовим словом '{keyword}': {data}")
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f"Інформацію за ключовим словом '{keyword}' не знайдено.")
+
+# Основна функція
+def main():
+    # Ініціалізація бота з використанням вашого токена
+    updater = Updater(token='YOUR_BOT_TOKEN', use_context=True)
+
+    # Додавання обробників команд та повідомлень
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, search))
+
+    # Запуск бота
+    updater.start_polling()
+    updater.idle()
+
+# Виклик основної функції
+if __name__ == '__main__':
+    main()
